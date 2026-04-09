@@ -40,51 +40,55 @@
         }
     </style>
 </head>
-<body class="vintage-paper min-h-screen p-4 md:p-8 flex flex-col">
+<body class="vintage-paper min-h-screen pt-2 pb-4 px-4 md:pt-4 md:pb-8 md:px-8 flex flex-col">
 
-    <nav id="main-nav" class="hidden max-w-5xl mx-auto mb-8 flex items-center justify-between border-b-2 border-stone-800 w-full pb-4 overflow-x-auto hide-scrollbar">
-        <div class="flex flex-col items-start gap-2 shrink-0 pr-8">
+    <!-- Menú de navegación: Invisible por defecto para la portada, margen reducido a mb-2 -->
+    <nav id="main-nav" class="max-w-5xl mx-auto mb-2 flex items-center justify-between w-full pb-2 overflow-x-auto hide-scrollbar invisible pointer-events-none select-none transition-opacity duration-300">
+        <div class="flex flex-col items-start gap-1 shrink-0 pr-8">
             <h1 class="text-2xl md:text-3xl font-bold uppercase tracking-tighter text-stone-900 whitespace-normal text-left max-w-[200px] md:max-w-[250px] leading-tight">La Videoteca de Alejandría</h1>
-            <div class="text-stone-700 font-bold bg-stone-300/50 px-3 py-1 rounded text-sm md:text-base whitespace-nowrap">
+            <div class="text-stone-700 font-bold bg-stone-300/50 px-3 py-1 rounded text-xs md:text-sm whitespace-nowrap">
                 Progreso: <span id="sticker-counter">0</span>/<span id="total-laminas">12</span> Láminas
             </div>
         </div>
         <div class="space-x-4 md:space-x-6 text-base md:text-lg flex items-center shrink-0 whitespace-nowrap">
-            <a href="#" onclick="showView('portada')" id="nav-portada" class="hover:underline font-bold underline transition-all">Portada</a>
-            <a href="#" onclick="showView('album')" id="nav-album" class="hover:underline transition-all">Mi Álbum</a>
-            <a href="#" onclick="showView('misiones')" id="nav-misiones" class="hover:underline transition-all">Misiones</a>
+            <a href="#" onclick="showView('portada')" id="nav-portada" class="hover:underline font-bold underline transition-all text-stone-900">Portada</a>
+            <a href="#" onclick="showView('album')" id="nav-album" class="hover:underline transition-all text-stone-900">Mi Álbum</a>
+            <a href="#" onclick="showView('misiones')" id="nav-misiones" class="hover:underline transition-all text-stone-900">Misiones</a>
             <a href="#" onclick="showView('recompensa')" id="nav-recompensa" class="bg-stone-300/50 text-stone-600 border border-stone-400 px-3 py-1 rounded font-bold cursor-not-allowed pointer-events-none transition-all">Recompensa 🔒</a>
         </div>
     </nav>
 
     <main class="max-w-5xl mx-auto flex-grow w-full">
         
-        <!-- Vista 0: Portada -->
-        <div id="view-portada" class="view-section block text-center flex flex-col items-center justify-center py-6 md:py-12">
-            <div class="border-[12px] border-double border-stone-800 p-8 md:p-16 max-w-2xl w-full mx-auto relative shadow-2xl bg-[#e8d5a5]" style="background-image: url('https://www.transparenttextures.com/patterns/aged-paper.png');">
+        <!-- Vista 0: Portada (mt-0 para subir el contenedor) -->
+        <div id="view-portada" class="view-section block">
+            <div class="border-[4px] border-double border-stone-800 p-8 md:p-12 shadow-lg bg-[#f9ecce] mt-0 relative mb-8 flex flex-col items-center justify-center text-center min-h-[65vh]" style="background-image: url('https://www.transparenttextures.com/patterns/aged-paper.png');">
                 <p class="uppercase tracking-widest text-stone-700 font-bold mb-4 text-sm md:text-base font-sans">Diario de Expedición</p>
                 
-                <h2 class="text-4xl sm:text-5xl md:text-7xl font-bold uppercase tracking-tighter text-stone-900 mb-8 mt-4 font-serif leading-tight">
+                <h2 class="text-4xl sm:text-5xl md:text-7xl font-bold uppercase tracking-tighter text-stone-900 mb-6 mt-2 font-serif leading-tight">
                     <span class="block whitespace-nowrap">La Videoteca</span>
                     <span class="block">de</span>
                     <span class="block">Alejandría</span>
                 </h2>
+
+                <!-- Botón movido inmediatamente después del título -->
+                <div class="flex justify-center w-full mb-8">
+                    <button onclick="showView('album')" class="px-10 py-4 bg-stone-900 text-stone-100 font-bold uppercase tracking-widest text-lg rounded hover:bg-stone-700 transition-all shadow-lg transform hover:scale-105 font-sans">
+                        Abrir Bitácora
+                    </button>
+                </div>
                 
-                <div class="w-48 h-48 mx-auto border-4 border-stone-800 rounded-full overflow-hidden mb-8 shadow-inner bg-stone-300">
+                <div class="w-40 h-40 md:w-48 md:h-48 mx-auto border-4 border-stone-800 rounded-full overflow-hidden mb-6 shadow-inner bg-stone-300">
                     <img src="https://picsum.photos/id/1015/400/400" class="w-full h-full object-cover sepia mix-blend-multiply" alt="">
                 </div>
                 
-                <p class="text-xl md:text-2xl text-stone-800 italic mb-10 font-serif">"Quien busca la verdad, encuentra su destino."</p>
-                
-                <button onclick="showView('album')" class="px-8 py-3 bg-stone-900 text-stone-100 font-bold uppercase tracking-widest text-lg rounded hover:bg-stone-700 transition-all shadow-lg transform hover:scale-105 font-sans">
-                    Abrir Bitácora
-                </button>
+                <p class="text-xl md:text-2xl text-stone-800 italic font-serif">"Quien busca la verdad, encuentra su destino."</p>
             </div>
         </div>
 
-        <!-- Vista 1: Álbum -->
+        <!-- Vista 1: Álbum (mt-0 para subir el contenedor) -->
         <div id="view-album" class="view-section hidden">
-            <div id="album-content-wrapper" class="border-[4px] border-double border-stone-800 p-6 md:p-10 shadow-lg bg-[#f9ecce] mt-4 relative mb-8 overflow-hidden">
+            <div id="album-content-wrapper" class="border-[4px] border-double border-stone-800 p-6 md:p-10 shadow-lg bg-[#f9ecce] mt-0 relative mb-8 overflow-hidden min-h-[65vh]">
                 
                 <!-- CAPA DE FONDO: Ilustración PNG Transparente -->
                 <div id="album-vector-bg" class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20 p-12 transition-all duration-500">
@@ -186,10 +190,9 @@
             { id: 12, nombre: "Máscara de Turquesa", img: "https://picsum.photos/id/1080/300/400", mision: "Recupera la ofrenda de los guardianes del cenote profundo.", codigo: "CENOTE" }
         ];
 
-        // --- CONFIGURACIÓN DE IMÁGENES DE FONDO (PNG TRANSPARENTE) ---
         const pageBackgroundImages = {
-            1: "https://lavideotecadealejandria.github.io/album-expedicion/azteca.png", // Imagen azteca
-            2: "https://lavideotecadealejandria.github.io/album-expedicion/azteca2.png" // Pergamino viejo
+            1: "https://www.transparentpng.com/download/compass/compass-transparent-images-12.png", 
+            2: "https://www.transparentpng.com/download/scroll/ancient-scroll-transparent-background-7.png"
         };
 
         const pageData = [
@@ -212,12 +215,15 @@
         function showView(viewId) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             document.getElementById('view-' + viewId).classList.remove('hidden');
+            
             const mainNav = document.getElementById('main-nav');
+            
             if (viewId === 'portada') {
-                mainNav.classList.add('hidden');
+                mainNav.classList.add('invisible', 'pointer-events-none', 'select-none');
             } else {
-                mainNav.classList.remove('hidden');
+                mainNav.classList.remove('invisible', 'pointer-events-none', 'select-none');
             }
+
             ['portada', 'album', 'misiones'].forEach(id => {
                 const nav = document.getElementById('nav-' + id);
                 if (nav) {
@@ -299,43 +305,33 @@
         function renderAlbum() {
             grid.innerHTML = '';
             const pageIndex = currentPage - 1;
-            
-            // Título de la página
             const pageTitleEl = document.getElementById('album-page-title');
             if (pageData[pageIndex] && pageTitleEl) {
                 pageTitleEl.innerText = pageData[pageIndex].titulo;
             }
-
-            // Actualizar Imagen PNG de fondo
             if (vectorBg) {
                 const imgUrl = pageBackgroundImages[currentPage];
                 if (imgUrl) {
-                    vectorBg.innerHTML = `<img src="${imgUrl}" class="w-full h-full object-contain png-blend" alt="">`;
+                    vectorBg.innerHTML = `<img src="${imgUrl}" class="w-full h-full object-contain png-blend" alt="[Ilustración temática]">`;
                 } else {
                     vectorBg.innerHTML = '';
                 }
             }
-
-            // 1. Insertar un espaciador invisible en la esquina superior izquierda (MD: 2 columnas)
             const spacer = document.createElement('div');
             spacer.className = "hidden md:block md:col-span-2 h-full";
             grid.appendChild(spacer);
-
-            // 2. Insertar Láminas (6 por página)
             const startIndex = pageIndex * itemsPerPage;
             const endIndex = startIndex + itemsPerPage;
             const currentLaminas = laminasData.slice(startIndex, endIndex);
-
             currentLaminas.forEach((lamina) => {
                 const isOwned = albumState[lamina.id];
                 const card = document.createElement('div');
                 card.className = `sticker-slot cursor-pointer border-2 border-dashed border-stone-400 bg-stone-200/40 aspect-[3/4] flex flex-col items-center justify-center relative overflow-hidden group shadow-inner rounded-sm w-full bg-[#f9ecce]/80 backdrop-blur-[1px] z-20`;
-                
                 if (isOwned) {
                     card.classList.remove('border-dashed', 'bg-stone-200/40', 'cursor-pointer');
                     card.classList.add('border-solid', 'sticker-active');
                     card.innerHTML = `
-                        <img src="${lamina.img}" class="w-full h-full object-cover" alt="">
+                        <img src="${lamina.img}" class="w-full h-full object-cover" alt="[${lamina.nombre}]">
                         <div class="absolute bottom-0 bg-stone-900/85 text-white w-full text-center py-1 text-[9px] font-sans uppercase tracking-widest">
                             ${lamina.nombre}
                         </div>
@@ -351,7 +347,6 @@
                 }
                 grid.appendChild(card);
             });
-
             renderPagination();
             renderMisiones();
             updateProgress();
@@ -371,7 +366,6 @@
             showView('recompensa');
         };
         document.getElementById('close-celebration').onclick = () => celebrationModal.classList.add('hidden');
-
         function openCodeModal(id) {
             currentUnlockId = id;
             codeInput.value = '';
@@ -382,7 +376,6 @@
         document.getElementById('close-code-modal').onclick = () => codeModal.classList.add('hidden');
         document.getElementById('verify-code-btn').onclick = verifyCode;
         codeInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') verifyCode(); });
-
         function verifyCode() {
             const lamina = laminasData.find(l => l.id === currentUnlockId);
             const userCode = codeInput.value.trim().toUpperCase();
@@ -395,7 +388,6 @@
                 setTimeout(() => codeInput.classList.remove('border-red-500', 'bg-red-50'), 500);
             }
         }
-
         renderAlbum();
     </script>
 </body>
