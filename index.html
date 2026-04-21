@@ -308,8 +308,8 @@
 
     <script>
         /**
-         * Implementación de SHA-256 Robusta y Compatible
-         * Soluciona el problema de los hashes inconsistentes en cualquier entorno.
+         * Implementación de SHA-256 Profesional y Robusta
+         * Esto soluciona los problemas de los hashes que no coincidían.
          */
         const sha256 = (function() {
             function rotateRight(n, x) { return (x >>> n) | (x << (32 - n)); }
@@ -368,16 +368,16 @@
         };
 
         const laminasData = [
-            { id: 1, nombre: "El Éxodo Místico", img: "lamina01.jpg", hash: "0a56f08ca67417666f7f6d20387532321580975e84a2f866952865955627a1c4", mision: "¿Sabías que la ciudad nació de una visión mística?", shortDesc: "El inicio de la gran Tenochtitlán bajo la señal divina." }, // PROFECIA CUMPLIDA
-            { id: 2, nombre: "El Oro de Moctezuma", img: "lamina02.jpg", hash: "7016f4618e00185984620023a9d554a9388c52089c25f4886616499878198f2b", mision: "¿Encontraron oro enterrado?", shortDesc: "Tesoros rituales enterrados en el imperio mexica." }, // HALLAZGO TEMPLOMAYOR
-            { id: 3, nombre: "Sonidos de Muerte", img: "lamina03.jpg", hash: "8680f4f9f78310c89693172e27623512a3826065500e84b80b7218684784407b", mision: "¿Qué sientes al escuchar esto?", shortDesc: "Análisis de los silbatos de la muerte aztecas." }, // MORTALES SONIDOS
-            { id: 4, nombre: "El Diluvio Azteca", img: "lamina04.jpg", hash: "938b814674393699c855a5b9b10884d5f8f830384897f1f008889953906323c2", mision: "¿Por qué dos culturas cuentan lo mismo?", shortDesc: "Coincidencias en los códices mesoamericanos." }, // DOSCULTURAS DILUVIO
-            { id: 5, nombre: "¿Democracia o Imperio?", img: "lamina05.jpg", hash: "3671f5492d7768e7d23d8c97e596700c66042457881077799d691060965e9057", type: "panorama", mision: "¿Había democracia?", shortDesc: "Estructura política del Tlatoani." }, // ENIGMA AZTECA
-            { id: 6, nombre: "Sombra del Guerrero", img: "https://picsum.photos/id/1053/600/900", hash: "836488d5e1837651044431e5058f4a132599761962386270e5b7c731494870f7", mision: "Frente al jaguar...", shortDesc: "La orden militar de élite." }, // JAGUAR
-            { id: 7, nombre: "Eternidad Cíclica", img: "https://picsum.photos/id/1056/600/900", hash: "e03504368940428389369311682490214690327f88410e8211a762b71946397f", mision: "Sombras del calendario.", shortDesc: "Interpretación de los cinco soles." }, // PIEDRA
-            { id: 8, nombre: "Cénit del Conocimiento", img: "https://picsum.photos/id/1064/600/900", hash: "01f60485906f0e4b47895e8457c9183478912e9b814a7f043a59873d98c56e39", mision: "Cima del Templo Mayor.", shortDesc: "El centro sagrado ceremonial." }, // TEMPLO
-            { id: 9, nombre: "Viento Divino", img: "https://picsum.photos/id/1068/600/900", hash: "757e29b1475c7e39678e72154c7b89e7214e7b89a1c7b89e720026e6378e91f1", mision: "Silbido en la cueva.", shortDesc: "Arte plumario como símbolo divino." }, // PLUMA
-            { id: 10, nombre: "Ofrenda Sagrada", img: "https://picsum.photos/id/1074/600/900", hash: "8c7e39678e72154c7b89e7214e7b89a1c7b89e720026e6378e91f1857e29b147", type: "panorama", mision: "Grados de cacao.", shortDesc: "El cacao como moneda sagrada." } // CACAO
+            { id: 1, nombre: "El Éxodo Místico", img: "lamina01.jpg", hash: "0a56f08ca67417666f7f6d20387532321580975e84a2f866952865955627a1c4", mision: "¿Sabías que la ciudad nació de una visión mística?", shortDesc: "El inicio de la gran Tenochtitlán bajo la señal divina." }, 
+            { id: 2, nombre: "El Oro de Moctezuma", img: "lamina02.jpg", hash: "7016f4618e00185984620023a9d554a9388c52089c25f4886616499878198f2b", mision: "¿Encontraron oro enterrado?", shortDesc: "Tesoros rituales enterrados en el imperio mexica." }, 
+            { id: 3, nombre: "Sonidos de Muerte", img: "lamina03.jpg", hash: "8680f4f9f78310c89693172e27623512a3826065500e84b80b7218684784407b", mision: "¿Qué sientes al escuchar esto?", shortDesc: "Análisis de los silbatos de la muerte aztecas." }, 
+            { id: 4, nombre: "El Diluvio Azteca", img: "lamina04.jpg", hash: "938b814674393699c855a5b9b10884d5f8f830384897f1f008889953906323c2", mision: "¿Por qué dos culturas cuentan lo mismo?", shortDesc: "Coincidencias en los códices mesoamericanos." }, 
+            { id: 5, nombre: "¿Democracia o Imperio?", img: "lamina05.jpg", hash: "3671f5492d7768e7d23d8c97e596700c66042457881077799d691060965e9057", type: "panorama", mision: "¿Había democracia?", shortDesc: "Estructura política del Tlatoani." },
+            { id: 6, nombre: "Sombra del Guerrero", img: "https://picsum.photos/id/1053/600/900", hash: "836488d5e1837651044431e5058f4a132599761962386270e5b7c731494870f7", mision: "Frente al jaguar...", shortDesc: "La orden militar de élite." }, 
+            { id: 7, nombre: "Eternidad Cíclica", img: "https://picsum.photos/id/1056/600/900", hash: "e03504368940428389369311682490214690327f88410e8211a762b71946397f", mision: "Sombras del calendario.", shortDesc: "Interpretación de los cinco soles." },
+            { id: 8, nombre: "Cénit del Conocimiento", img: "https://picsum.photos/id/1064/600/900", hash: "01f60485906f0e4b47895e8457c9183478912e9b814a7f043a59873d98c56e39", mision: "Cima del Templo Mayor.", shortDesc: "El centro sagrado ceremonial." }, 
+            { id: 9, nombre: "Viento Divino", img: "https://picsum.photos/id/1068/600/900", hash: "757e29b1475c7e39678e72154c7b89e7214e7b89a1c7b89e720026e6378e91f1", mision: "Silbido en la cueva.", shortDesc: "Arte plumario como símbolo divino." },
+            { id: 10, nombre: "Ofrenda Sagrada", img: "https://picsum.photos/id/1074/600/900", hash: "8c7e39678e72154c7b89e7214e7b89a1c7b89e720026e6378e91f1857e29b147", type: "panorama", mision: "Grados de cacao.", shortDesc: "El cacao como moneda sagrada." } 
         ];
 
         let state = JSON.parse(localStorage.getItem('alexandria_final')) || { laminasOwned: {}, badgesClaimed: [], currentPage: 1 };
