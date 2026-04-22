@@ -51,7 +51,6 @@
             position: relative;
         }
 
-        /* Contenedor para el PNG de fondo del álbum */
         .page-background-graphic {
             position: absolute;
             inset: 0;
@@ -71,7 +70,6 @@
             object-fit: contain;
         }
 
-        /* Estilo específico para el fondo inmovil de Misiones */
         .misiones-bg-fixed {
             position: absolute;
             top: 0;
@@ -232,7 +230,8 @@
 </head>
 <body class="vintage-paper min-h-screen pt-2 pb-4 px-4 md:pt-4 md:pb-8 md:px-8 flex flex-col items-center">
 
-    <canvas id="celebration-canvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
+    <!-- Canvas de Celebración -->
+    <canvas id="celebration-canvas" class="fixed inset-0 pointer-events-none z-[200]"></canvas>
 
     <div id="reward-notification" class="reward-toast rounded-sm flex flex-col items-center text-center">
         <div class="text-4xl mb-2">🎁</div>
@@ -289,7 +288,6 @@
         <div id="view-album" class="view-section hidden">
             <div id="album-content-wrapper" class="album-container paper-page overflow-hidden">
                 <div class="aging-overlay"></div>
-                <!-- Gráfico de fondo dinámico -->
                 <div id="page-bg-graphic" class="page-background-graphic"></div>
                 
                 <div id="album-page-header" class="absolute top-10 z-30 transition-all duration-500"></div>
@@ -301,10 +299,8 @@
         <!-- VISTA: MISIONES -->
         <div id="view-misiones" class="view-section hidden">
             <div class="album-container paper-page relative overflow-hidden">
-                <!-- Imagen de fondo inmovil (2:1 Proporción) -->
                 <div class="misiones-bg-fixed">
-                    <!-- Reemplazar 'fondo.png'  -->
-                    <img src="logovideoteca.png" alt="Fondo Misiones">
+                    <img src="https://www.transparentpng.com/download/geometric/geometric-transparent-1.png" alt="Fondo Misiones">
                 </div>
                 
                 <div class="aging-overlay"></div>
@@ -378,6 +374,7 @@
     </div>
 
     <script>
+        // ESTRUCTURA DE DATOS
         const _DATA_MAP = [
             { id: 1, nombre: "El Éxodo Místico", img: "lamina01.jpg", _key: "UFJPRkVDSUEgQ1VNUExJREE=", mision: "¿Sabías que la ciudad más grande de América nació de una visión mística?", shortDesc: "El inicio de la gran Tenochtitlán bajo la señal divina del águila y la serpiente." },
             { id: 2, nombre: "El Oro de Moctezuma", img: "lamina02.jpg", _key: "SEFMTEFaR08gVEVNUExPTUFZT1I=", mision: "¿Sabías que encontraron una ofrenda de oro enterrada en el Templo Mayor?", shortDesc: "Tesoros rituales enterrados en el corazón del imperio mexica." },
@@ -398,6 +395,69 @@
 
         let state = JSON.parse(localStorage.getItem('alexandria_final')) || { laminasOwned: {}, badgesClaimed: [], currentPage: 1 };
         let _currentID = null;
+
+        // --- SISTEMA DE CELEBRACIÓN (CONFETI) ---
+        const celebrationCanvas = document.getElementById('celebration-canvas');
+        const ctx = celebrationCanvas.getContext('2d');
+        let particles = [];
+        let animationFrame;
+
+        function resizeCanvas() {
+            celebrationCanvas.width = window.innerWidth;
+            celebrationCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * celebrationCanvas.width;
+                this.y = Math.random() * celebrationCanvas.height - celebrationCanvas.height;
+                this.size = Math.random() * 8 + 4;
+                this.weight = Math.random() * 2 + 1;
+                this.directionX = Math.random() * 3 - 1.5;
+                // Colores temáticos: Oro, Jade, Terracota, Amarillo Sol
+                const colors = ['#d4af37', '#4a773c', '#8b0000', '#fde68a'];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                this.rotation = Math.random() * 360;
+                this.rotationSpeed = Math.random() * 5;
+            }
+            update() {
+                this.y += this.weight;
+                this.x += this.directionX;
+                this.rotation += this.rotationSpeed;
+            }
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation * Math.PI / 180);
+                ctx.fillStyle = this.color;
+                ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size);
+                ctx.restore();
+            }
+        }
+
+        function launchCelebration() {
+            particles = [];
+            for (let i = 0; i < 150; i++) {
+                particles.push(new Particle());
+            }
+            animateCelebration();
+            // Detener después de 4 segundos
+            setTimeout(() => {
+                cancelAnimationFrame(animationFrame);
+                ctx.clearRect(0, 0, celebrationCanvas.width, celebrationCanvas.height);
+            }, 4000);
+        }
+
+        function animateCelebration() {
+            ctx.clearRect(0, 0, celebrationCanvas.width, celebrationCanvas.height);
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+            }
+            animationFrame = requestAnimationFrame(animateCelebration);
+        }
 
         function saveState() { 
             localStorage.setItem('alexandria_final', JSON.stringify(state)); 
@@ -442,12 +502,9 @@
             header.className = `absolute top-10 ${isOdd ? 'left-10 md:left-14' : 'right-10 md:right-16'} z-30 transition-all duration-500`;
             header.innerHTML = `<h3 class="text-4xl md:text-6xl font-bold uppercase tracking-tighter leading-[0.85] ${isOdd ? 'text-left' : 'text-right'} text-stone-900">${titulos[state.currentPage-1]}</h3>`;
             
-            // Actualizar imagen de fondo del álbum
             if (state.currentPage === 1) {
-                // Imagen proporcionada azteca.png
                 bgContainer.innerHTML = `<img src="azteca.png" alt="Símbolo Azteca">`;
             } else {
-                // Símbolo sencillo para la página 2 (Templo Azteca)
                 bgContainer.innerHTML = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#5d4037" stroke-width="2">
                     <path d="M10 90 L30 90 L30 70 L40 70 L40 50 L50 50 L50 30 L60 30 L60 50 L70 50 L70 70 L80 70 L80 90 L90 90" />
                     <path d="M40 90 L40 80 L60 80 L60 90" />
@@ -603,7 +660,10 @@
         }
 
         function claimBadge(id) {
-            state.badgesClaimed.push(id); saveState(); renderRecompensas();
+            state.badgesClaimed.push(id); 
+            launchCelebration(); // CELEBRACIÓN AL RECLAMAR
+            saveState(); 
+            renderRecompensas();
         }
 
         function goToRewards() { 
@@ -621,10 +681,14 @@
             const _encoded = btoa(userVal);
             
             if (_encoded === lamina._key) {
-                state.laminasOwned[_currentID] = true; saveState();
+                state.laminasOwned[_currentID] = true; 
+                saveState();
                 document.getElementById('code-modal').classList.add('hidden');
                 renderAlbum();
+                
+                // CELEBRACIÓN AL COMPLETAR UN SET
                 if (Object.keys(state.laminasOwned).length % 5 === 0) {
+                    launchCelebration(); 
                     const toast = document.getElementById('reward-notification');
                     toast.classList.add('show');
                     setTimeout(() => toast.classList.remove('show'), 6000);
