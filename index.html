@@ -219,18 +219,30 @@
             border: 3px solid #b38b00;
             padding: 1.5rem;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            z-index: 100;
+            z-index: 300;
             max-width: 300px;
             transform: translateY(150%);
             transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             background-image: url("https://www.transparenttextures.com/patterns/aged-paper.png");
         }
         .reward-toast.show { transform: translateY(0); }
+
+        .sync-status {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            font-size: 9px;
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 50;
+        }
     </style>
 </head>
 <body class="vintage-paper min-h-screen pt-2 pb-4 px-4 md:pt-4 md:pb-8 md:px-8 flex flex-col items-center">
 
-    <!-- Canvas de Celebración -->
+    <div id="sync-indicator" class="sync-status">Sincronizando con los Archivos...</div>
+
     <canvas id="celebration-canvas" class="fixed inset-0 pointer-events-none z-[200]"></canvas>
 
     <div id="reward-notification" class="reward-toast rounded-sm flex flex-col items-center text-center">
@@ -241,7 +253,6 @@
         <button onclick="hideNotification()" class="mt-2 text-[10px] text-stone-500 hover:text-stone-800 underline">Cerrar</button>
     </div>
 
-    <!-- Navegación -->
     <nav id="main-nav" class="max-w-5xl mx-auto mb-2 flex items-center justify-between w-full pb-2 overflow-x-auto hide-scrollbar invisible pointer-events-none transition-opacity duration-300">
         <div class="flex flex-col items-start gap-1 shrink-0 pr-8">
             <h1 class="text-xl md:text-2xl font-bold uppercase tracking-tighter text-left leading-tight brand-title-interior">
@@ -265,7 +276,6 @@
     </nav>
 
     <main class="w-full max-w-5xl">
-        <!-- VISTA: PORTADA -->
         <div id="view-portada" class="view-section block">
             <div class="album-container leather-cover p-8 md:p-14 flex flex-col justify-between items-center text-center">
                 <div class="aging-overlay"></div>
@@ -284,7 +294,6 @@
             </div>
         </div>
 
-        <!-- VISTA: MI ÁLBUM -->
         <div id="view-album" class="view-section hidden">
             <div id="album-content-wrapper" class="album-container paper-page overflow-hidden">
                 <div class="aging-overlay"></div>
@@ -296,11 +305,10 @@
             <div id="pagination-controls" class="flex justify-center space-x-2 md:space-x-4 pb-8"></div>
         </div>
 
-        <!-- VISTA: MISIONES -->
         <div id="view-misiones" class="view-section hidden">
             <div class="album-container paper-page relative overflow-hidden">
                 <div class="misiones-bg-fixed">
-                    <img src="logovideoteca.png" alt="Fondo Misiones">
+                    <img src="https://www.transparentpng.com/download/geometric/geometric-transparent-1.png" alt="Fondo Misiones">
                 </div>
                 
                 <div class="aging-overlay"></div>
@@ -324,18 +332,20 @@
             </div>
         </div>
 
-        <!-- VISTA: RECOMPENSAS -->
         <div id="view-recompensa" class="view-section hidden">
             <div class="album-container paper-page overflow-y-auto hide-scrollbar relative">
                 <div class="relative z-50 p-8 md:p-14 misiones-container text-center">
                     <h2 class="text-4xl font-bold mb-8 text-center uppercase tracking-widest text-stone-900 text-center">Vitrina de Recompensas</h2>
                     <div id="badges-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12 items-center justify-items-center"></div>
+                    
+                    <div class="mt-12 text-stone-800/60 text-[10px] uppercase tracking-widest font-bold border-t border-stone-800/10 pt-8">
+                        <span id="global-historians-count">...</span> videonautas han indagado en los Archivos de Alejandría
+                    </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- VISOR DE LÁMINA -->
     <div id="viewer-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md hidden flex items-center justify-center z-[100] p-4">
         <div class="flex flex-col items-center gap-6 max-w-4xl w-full">
             <button onclick="closeViewer()" class="absolute top-6 right-6 text-white/50 hover:text-white text-5xl font-light transition-all">&times;</button>
@@ -362,7 +372,6 @@
         </div>
     </div>
 
-    <!-- Modal de Código -->
     <div id="code-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center z-[80] p-4">
         <div class="bg-[#f4e4bc] border-4 border-stone-800 p-8 max-w-sm w-full mx-4 rounded-sm shadow-2xl text-center relative" style="background-image: url('https://www.transparenttextures.com/patterns/aged-paper.png');">
             <button onclick="document.getElementById('code-modal').classList.add('hidden')" class="absolute top-2 right-4 text-3xl text-stone-600 hover:text-stone-900 font-bold">&times;</button>
@@ -373,7 +382,25 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, increment, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+           apiKey: "AIzaSyBv2acfXnTnU-ZLBfhWOqwN3o_NYn9EIpo",
+           authDomain: "album-archivos-alejandria.firebaseapp.com",
+           projectId: "album-archivos-alejandria",
+           storageBucket: "album-archivos-alejandria.firebasestorage.app",
+           messagingSenderId: "885290528156",
+           appId: "1:885290528156:web:9afbd750956618afbeac59"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = 'mi-album-azteca-2026';
+
         // ESTRUCTURA DE DATOS
         const _DATA_MAP = [
             { id: 1, nombre: "El Éxodo Místico", img: "lamina01.jpg", _key: "UFJPRkVDSUEgQ1VNUExJREE=", mision: "¿Sabías que la ciudad más grande de América nació de una visión mística?", shortDesc: "El inicio de la gran Tenochtitlán bajo la señal divina del águila y la serpiente." },
@@ -395,6 +422,7 @@
 
         let state = JSON.parse(localStorage.getItem('alexandria_final')) || { laminasOwned: {}, badgesClaimed: [], currentPage: 1 };
         let _currentID = null;
+        let user = null;
 
         // --- SISTEMA DE CELEBRACIÓN (CONFETI) ---
         const celebrationCanvas = document.getElementById('celebration-canvas');
@@ -416,7 +444,6 @@
                 this.size = Math.random() * 8 + 4;
                 this.weight = Math.random() * 2 + 1;
                 this.directionX = Math.random() * 3 - 1.5;
-                // Colores temáticos: Oro, Jade, Terracota, Amarillo Sol
                 const colors = ['#d4af37', '#4a773c', '#8b0000', '#fde68a'];
                 this.color = colors[Math.floor(Math.random() * colors.length)];
                 this.rotation = Math.random() * 360;
@@ -443,7 +470,6 @@
                 particles.push(new Particle());
             }
             animateCelebration();
-            // Detener después de 4 segundos
             setTimeout(() => {
                 cancelAnimationFrame(animationFrame);
                 ctx.clearRect(0, 0, celebrationCanvas.width, celebrationCanvas.height);
@@ -459,11 +485,36 @@
             animationFrame = requestAnimationFrame(animateCelebration);
         }
 
-        function saveState() { 
-            localStorage.setItem('alexandria_final', JSON.stringify(state)); 
-            _updateUI();
+        // --- NUBE ---
+        async function syncWithCloud() {
+            if (!user) return;
+            const syncInd = document.getElementById('sync-indicator');
+            syncInd.innerText = "Sincronizando...";
+            try {
+                const userProgressRef = doc(db, 'artifacts', appId, 'users', user.uid, 'data', 'progress');
+                await setDoc(userProgressRef, {
+                    laminasOwned: state.laminasOwned,
+                    badgesClaimed: state.badgesClaimed,
+                    lastUpdated: new Date()
+                }, { merge: true });
+                syncInd.innerText = "Archivos Sincronizados";
+            } catch (err) {
+                syncInd.innerText = "Modo Offline";
+            }
         }
 
+        function setupGlobalListeners() {
+            const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats');
+            onSnapshot(statsRef, (snap) => {
+                if (snap.exists()) {
+                    const data = snap.data();
+                    document.getElementById('global-historians-count').innerText = data.totalUsers || 0;
+                    renderRecompensas(data.badgesGlobal || {});
+                }
+            });
+        }
+
+        // --- UI ---
         function _updateUI() {
             const count = Object.keys(state.laminasOwned).length;
             const bar = document.getElementById('progress-bar-fill');
@@ -478,7 +529,7 @@
             else nav.classList.remove('nav-alert');
         }
 
-        function showView(viewId) {
+        window.showView = (viewId) => {
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             const section = document.getElementById('view-' + viewId);
             if (section) section.classList.remove('hidden');
@@ -488,228 +539,151 @@
             if (viewId === 'album') renderAlbum();
             if (viewId === 'misiones') renderMisiones();
             if (viewId === 'recompensa') renderRecompensas();
-        }
+        };
 
         function renderAlbum() {
             const body = document.getElementById('album-page-body');
             const header = document.getElementById('album-page-header');
             const bgContainer = document.getElementById('page-bg-graphic');
             if (!body || !header || !bgContainer) return;
-            
             body.innerHTML = '';
             const isOdd = state.currentPage % 2 !== 0;
-            const titulos = ["EL IMPERIO<br>DEL SOL", "LEGADO<br>DEL JAGUAR"];
-            header.className = `absolute top-10 ${isOdd ? 'left-10 md:left-14' : 'right-10 md:right-16'} z-30 transition-all duration-500`;
-            header.innerHTML = `<h3 class="text-4xl md:text-6xl font-bold uppercase tracking-tighter leading-[0.85] ${isOdd ? 'text-left' : 'text-right'} text-stone-900">${titulos[state.currentPage-1]}</h3>`;
-            
-            if (state.currentPage === 1) {
-                bgContainer.innerHTML = `<img src="azteca.png" alt="Símbolo Azteca">`;
-            } else {
-                bgContainer.innerHTML = `<img src="egipcio.png" alt="Símbolo Egipcio">`;
-            }
 
-            const fixedHeight = "230px"; 
+            // Restauración de posicionamiento y márgenes de los títulos
+            header.className = `absolute top-10 ${isOdd ? 'left-10 md:left-14' : 'right-10 md:right-16'} z-30 transition-all duration-500`;
+            
+            header.innerHTML = `<h3 class="text-4xl md:text-6xl font-bold uppercase tracking-tighter leading-[0.85] ${isOdd ? 'text-left' : 'text-right'} text-stone-900">${state.currentPage === 1 ? 'EL IMPERIO<br>DEL SOL' : 'LEGADO<br>DEL JAGUAR'}</h3>`;
+            
+            bgContainer.innerHTML = state.currentPage === 1 ? `<img src="azteca.png" alt="Símbolo Azteca">` : `<svg viewBox="0 0 100 100" fill="none" stroke="#5d4037" stroke-width="2"><path d="M10 90 L30 90 L30 70 L40 70 L40 50 L50 50 L50 30 L60 30 L60 50 L70 50 L70 70 L80 70 L80 90 L90 90" /><path d="M40 90 L40 80 L60 80 L60 90" /><circle cx="50" cy="20" r="5" /></svg>`;
+            
             const container = document.createElement('div');
             container.className = "flex items-end justify-between w-full gap-12 pb-4 relative z-10";
-            
             const currentData = state.currentPage === 1 ? _DATA_MAP.slice(0, 5) : _DATA_MAP.slice(5, 10);
             const pano = currentData.find(l => l.type === "panorama");
             const normals = currentData.filter(l => l.type !== "panorama");
 
             const panoCard = createStickerElement(pano, true);
-            panoCard.style.height = fixedHeight;
+            const grid = document.createElement('div'); grid.className = "grid grid-cols-2 gap-6 w-full";
+            normals.forEach(l => grid.appendChild(createStickerElement(l)));
 
-            const gridContainer = document.createElement('div');
-            gridContainer.className = "grid grid-cols-2 gap-6 w-full";
-            normals.forEach(l => {
-                const card = createStickerElement(l);
-                card.style.height = fixedHeight;
-                gridContainer.appendChild(card);
-            });
-
-            if (isOdd) {
-                const leftPart = document.createElement('div'); leftPart.className = "flex-1 flex items-end justify-start";
-                const rightPart = document.createElement('div'); rightPart.className = "flex-1 flex items-end justify-center";
-                leftPart.appendChild(panoCard); rightPart.appendChild(gridContainer);
-                container.appendChild(leftPart); container.appendChild(rightPart);
-            } else {
-                const leftPart = document.createElement('div'); leftPart.className = "flex-1 flex items-end justify-center";
-                const rightPart = document.createElement('div'); rightPart.className = "flex-1 flex items-end justify-end";
-                leftPart.appendChild(gridContainer); rightPart.appendChild(panoCard);
-                container.appendChild(leftPart); container.appendChild(rightPart);
-            }
-            body.appendChild(container);
-            renderPagination();
+            if (isOdd) { container.append(panoCard, grid); } else { container.append(grid, panoCard); }
+            body.appendChild(container); renderPagination();
         }
 
         function createStickerElement(lamina, isPanorama = false) {
             const card = document.createElement('div');
             const owned = state.laminasOwned[lamina.id];
             card.className = `sticker-slot cursor-pointer ${isPanorama ? 'aspect-[2/1] w-full' : 'aspect-[2/3] w-full'} flex items-center justify-center relative overflow-hidden shadow-inner rounded-sm border border-black/10 bg-black/5`;
+            card.style.height = "230px";
             if (owned) {
                 card.classList.add('sticker-active');
-                card.style.transform = `rotate(${(lamina.id * 7 % 6) - 3}deg)`;
                 card.innerHTML = `<img src="${lamina.img}" class="w-full h-full object-cover">`;
                 if (!isPanorama) card.onclick = () => openViewer(lamina);
             } else {
                 card.innerHTML = `<span class="text-3xl font-bold text-stone-900/40 font-serif">${lamina.id}</span>`;
-                card.onclick = (e) => { 
-                    e.stopPropagation(); _currentID = lamina.id; 
-                    const modal = document.getElementById('code-modal');
-                    const input = document.getElementById('secret-code-input');
-                    input.value = ''; modal.classList.remove('hidden'); input.focus(); 
-                };
+                card.onclick = (e) => { e.stopPropagation(); _currentID = lamina.id; document.getElementById('secret-code-input').value = ''; document.getElementById('code-modal').classList.remove('hidden'); document.getElementById('secret-code-input').focus(); };
             }
             return card;
         }
 
-        function openViewer(lamina) {
-            const viewerImg = document.getElementById('viewer-image');
-            const zoomContainer = document.querySelector('.zoom-container');
-            const zoomSlider = document.getElementById('zoom-slider');
-            
-            viewerImg.src = lamina.img; 
-            viewerImg.style.width = '100%'; 
-            zoomSlider.value = 1;
-            zoomContainer.scrollTop = 0; 
-            zoomContainer.scrollLeft = 0; 
-            
-            document.getElementById('viewer-title').innerText = lamina.nombre; 
-            document.getElementById('viewer-desc').innerText = lamina.shortDesc || lamina.mision;
-            document.getElementById('viewer-number').innerText = lamina.id; 
-            document.getElementById('card-element').classList.remove('card-flipped'); 
+        window.openViewer = (l) => {
+            document.getElementById('viewer-image').src = l.img;
+            document.getElementById('viewer-title').innerText = l.nombre;
+            document.getElementById('viewer-desc').innerText = l.shortDesc || l.mision;
+            document.getElementById('viewer-number').innerText = l.id;
+            document.getElementById('card-element').classList.remove('card-flipped');
             document.getElementById('viewer-modal').classList.remove('hidden');
-        }
+        };
 
-        function closeViewer() { 
-            document.getElementById('viewer-modal').classList.add('hidden'); 
-        }
-
-        function flipCard() { 
-            document.getElementById('card-element').classList.toggle('card-flipped'); 
-        }
+        window.closeViewer = () => document.getElementById('viewer-modal').classList.add('hidden');
+        window.flipCard = () => document.getElementById('card-element').classList.toggle('card-flipped');
 
         function renderPagination() {
-            const container = document.getElementById('pagination-controls');
-            container.innerHTML = '';
-            for (let i = 1; i <= 2; i++) {
+            const container = document.getElementById('pagination-controls'); container.innerHTML = '';
+            [1, 2].forEach(i => {
                 const btn = document.createElement('button'); btn.innerText = `Pág. ${i}`;
                 btn.className = `px-6 py-2 font-bold rounded-full transition-all border-b-4 ${i === state.currentPage ? 'bg-[#d4af37] text-stone-950 border-[#b38b00]' : 'bg-stone-800 text-stone-400 border-stone-900'}`;
                 btn.onclick = () => { state.currentPage = i; renderAlbum(); };
                 container.appendChild(btn);
-            }
+            });
         }
 
         function renderMisiones() {
             const list = document.getElementById('misiones-list'); list.innerHTML = '';
-            const titulosPaginas = ["EL IMPERIO DEL SOL", "LEGADO DEL JAGUAR"];
-            const misionesPorPagina = [_DATA_MAP.slice(0, 5), _DATA_MAP.slice(5, 10)];
-            misionesPorPagina.forEach((grupo, index) => {
-                const sectionHeader = document.createElement('div');
-                sectionHeader.className = "col-span-full mt-6 mb-4 pb-1 border-b-2 border-stone-800/20";
-                sectionHeader.innerHTML = `<h3 class="text-xl md:text-2xl font-bold text-stone-800 tracking-tighter uppercase">${titulosPaginas[index]}</h3>`;
-                list.appendChild(sectionHeader);
-                grupo.forEach(l => {
+            const t = ["EL IMPERIO DEL SOL", "LEGADO DEL JAGUAR"];
+            [_DATA_MAP.slice(0, 5), _DATA_MAP.slice(5, 10)].forEach((g, i) => {
+                const h = document.createElement('div'); h.className = "col-span-full mt-6 mb-4 pb-1 border-b-2 border-stone-800/20";
+                h.innerHTML = `<h3 class="text-xl md:text-2xl font-bold text-stone-800 tracking-tighter uppercase">${t[i]}</h3>`;
+                list.appendChild(h);
+                g.forEach(l => {
                     const owned = state.laminasOwned[l.id];
                     const item = document.createElement('div');
                     item.className = `p-4 border-2 transition-all ${owned ? 'opacity-50 border-[#d4af37] bg-stone-100/60' : 'border-dashed border-stone-400 bg-stone-100/40'} rounded flex justify-between items-center`;
-                    item.innerHTML = `
-                        <div class="pr-4">
-                            <h4 class="font-bold text-stone-900 uppercase text-xs tracking-wider">${l.id}. ${l.nombre}</h4>
-                            <p class="text-[11px] leading-tight text-stone-700 mt-1 italic">${l.mision}</p>
-                        </div>
-                        <div class="shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center font-bold text-xs ${owned ? 'bg-[#d4af37] text-stone-900 border-[#b38b00]' : 'border-stone-400 text-stone-400'}">
-                            ${owned ? '✓' : l.id}
-                        </div>
-                    `;
+                    item.innerHTML = `<div><h4 class="font-bold text-stone-900 uppercase text-xs">${l.id}. ${l.nombre}</h4><p class="text-[11px] text-stone-700 mt-1 italic">${l.mision}</p></div><div class="shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center font-bold text-xs ${owned ? 'bg-[#d4af37] text-stone-900 border-[#b38b00]' : 'border-stone-400 text-stone-400'}">${owned ? '✓' : l.id}</div>`;
                     list.appendChild(item);
                 });
             });
         }
 
-        function renderRecompensas() {
-            const grid = document.getElementById('badges-grid'); grid.innerHTML = '';
+        function renderRecompensas(badgesGlobal = {}) {
+            const grid = document.getElementById('badges-grid'); if (!grid) return; grid.innerHTML = '';
             insigniasLegendarias.forEach(ins => {
                 const complete = ins.set.every(id => state.laminasOwned[id]);
                 const claimed = state.badgesClaimed.includes(ins.id);
+                const globalCount = badgesGlobal[ins.id] || 0;
                 const card = document.createElement('div');
-                
-                let medalEffect = '';
-                if (claimed) {
-                    medalEffect = 'border-amber-200/40 bg-[#fffef0] shadow-[0_15px_35px_rgba(184,134,11,0.2),inset_0_0_20px_rgba(212,175,55,0.1)]';
-                } else if (complete) {
-                    medalEffect = 'border-amber-400 bg-white shadow-[0_0_40px_rgba(212,175,55,0.7)] animate-pulse';
-                } else {
-                    medalEffect = 'border-dashed border-stone-300 opacity-40 grayscale bg-stone-100/10';
-                }
-
-                card.className = `p-8 rounded-full text-center border-2 transition-all flex flex-col items-center justify-center aspect-square w-full max-w-[280px] mx-auto relative ${medalEffect}`;
-                
-                card.innerHTML = `
-                    <div class="mb-2 h-24 flex items-center justify-center relative z-10">${ins.icon}</div>
-                    <h4 class="font-bold text-stone-900 uppercase text-[14px] tracking-widest leading-tight mb-2 relative z-10">${ins.nombre}</h4>
-                    <p class="text-stone-700 italic leading-relaxed px-4 relative z-10 font-serif" style="font-size: 11px;">${ins.desc}</p>
-                    ${complete && !claimed ? `<button onclick="claimBadge(${ins.id})" class="mt-4 bg-amber-600 text-white px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg hover:bg-amber-700 transition-colors relative z-20">RECLAMAR</button>` : !complete ? `<p class="text-stone-500 text-[10px] mt-3 italic relative z-10">Misión pendiente</p>` : ''}
-                `;
+                card.className = `p-8 rounded-full text-center border-2 transition-all flex flex-col items-center justify-center aspect-square w-full max-w-[280px] mx-auto relative ${claimed ? 'border-amber-200/40 bg-[#fffef0]' : complete ? 'border-amber-400 bg-white animate-pulse' : 'border-dashed border-stone-300 opacity-40 grayscale'}`;
+                card.innerHTML = `<div class="mb-2 h-24 flex items-center justify-center">${ins.icon}</div><h4 class="font-bold text-stone-900 uppercase text-[14px] tracking-widest leading-tight mb-2">${ins.nombre}</h4><p class="text-stone-700 italic leading-relaxed px-4 font-serif text-[11px]">${ins.desc}</p><div class="mt-2 text-[9px] font-bold text-stone-500 uppercase opacity-70">${globalCount} Reclamadas Globalmente</div>${complete && !claimed ? `<button onclick="claimBadge(${ins.id})" class="mt-4 bg-amber-600 text-white px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg hover:bg-amber-700">RECLAMAR</button>` : !complete ? `<p class="text-stone-500 text-[10px] mt-3 italic">Misión pendiente</p>` : ''}`;
                 grid.appendChild(card);
             });
         }
 
-        function claimBadge(id) {
-            state.badgesClaimed.push(id); 
-            launchCelebration(); // CELEBRACIÓN AL RECLAMAR
-            saveState(); 
-            renderRecompensas();
-        }
-
-        function goToRewards() { 
-            document.getElementById('reward-notification').classList.remove('show');
-            showView('recompensa'); 
-        }
-        function hideNotification() { document.getElementById('reward-notification').classList.remove('show'); }
-
-        const verifyBtn = document.getElementById('verify-code-btn');
-        const codeInput = document.getElementById('secret-code-input');
-
-        const processCode = () => {
-            const lamina = _DATA_MAP.find(l => l.id === _currentID);
-            const userVal = codeInput.value.trim().toUpperCase();
-            const _encoded = btoa(userVal);
-            
-            if (_encoded === lamina._key) {
-                state.laminasOwned[_currentID] = true; 
-                saveState();
-                document.getElementById('code-modal').classList.add('hidden');
-                renderAlbum();
-                
-                // CELEBRACIÓN AL COMPLETAR UN SET
-                if (Object.keys(state.laminasOwned).length % 5 === 0) {
-                    launchCelebration(); 
-                    const toast = document.getElementById('reward-notification');
-                    toast.classList.add('show');
-                    setTimeout(() => toast.classList.remove('show'), 6000);
-                }
-            } else {
-                codeInput.classList.add('animate-shake', 'border-red-500');
-                setTimeout(() => codeInput.classList.remove('animate-shake', 'border-red-500'), 500);
-            }
-            codeInput.value = '';
+        window.claimBadge = async (id) => {
+            state.badgesClaimed.push(id); launchCelebration();
+            localStorage.setItem('alexandria_final', JSON.stringify(state)); _updateUI();
+            try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'stats'), { [`badgesGlobal.${id}`]: increment(1) }); } catch (e) {}
+            syncWithCloud(); renderRecompensas();
         };
 
-        verifyBtn.onclick = processCode;
-        codeInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') processCode(); });
+        window.goToRewards = () => { document.getElementById('reward-notification').classList.remove('show'); showView('recompensa'); };
+        window.hideNotification = () => document.getElementById('reward-notification').classList.remove('show');
 
-        window.onload = () => { 
-            showView('portada'); 
-            _updateUI(); 
-            
-            const zoomSlider = document.getElementById('zoom-slider');
-            const viewerImg = document.getElementById('viewer-image');
-            
-            zoomSlider.addEventListener('input', function(e) {
-                const val = parseFloat(this.value);
-                viewerImg.style.width = (val * 100) + '%';
-            });
+        const processCode = () => {
+            const l = _DATA_MAP.find(x => x.id === _currentID);
+            if (btoa(document.getElementById('secret-code-input').value.trim().toUpperCase()) === l._key) {
+                state.laminasOwned[_currentID] = true; 
+                localStorage.setItem('alexandria_final', JSON.stringify(state)); _updateUI();
+                document.getElementById('code-modal').classList.add('hidden'); renderAlbum();
+                if (Object.keys(state.laminasOwned).length % 5 === 0) {
+                    launchCelebration(); document.getElementById('reward-notification').classList.add('show');
+                    setTimeout(() => document.getElementById('reward-notification').classList.remove('show'), 6000);
+                }
+                syncWithCloud();
+            } else {
+                document.getElementById('secret-code-input').classList.add('animate-shake', 'border-red-500');
+                setTimeout(() => document.getElementById('secret-code-input').classList.remove('animate-shake', 'border-red-500'), 500);
+            }
+        };
+
+        document.getElementById('verify-code-btn').onclick = processCode;
+        document.getElementById('secret-code-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') processCode(); });
+
+        window.onload = async () => {
+            showView('portada'); _updateUI();
+            try {
+                const u = await signInAnonymously(auth).then(r => r.user);
+                user = u;
+                if (user) {
+                    const snap = await getDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'data', 'progress'));
+                    if (snap.exists() && Object.keys(snap.data().laminasOwned || {}).length > Object.keys(state.laminasOwned).length) {
+                        state = { ...state, ...snap.data() }; localStorage.setItem('alexandria_final', JSON.stringify(state));
+                    } else if (!snap.exists()) {
+                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'stats'), { totalUsers: increment(1) });
+                    }
+                    setupGlobalListeners(); _updateUI();
+                }
+            } catch (e) { document.getElementById('sync-indicator').innerText = "Modo Offline"; }
+            document.getElementById('zoom-slider').addEventListener('input', (e) => document.getElementById('viewer-image').style.width = (parseFloat(e.target.value) * 100) + '%');
         };
     </script>
 </body>
