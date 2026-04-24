@@ -329,7 +329,7 @@
         <div id="view-misiones" class="view-section hidden">
             <div class="album-container paper-page relative overflow-hidden">
                 <div class="misiones-bg-fixed">
-                    <img src="https://www.transparentpng.com/download/geometric/geometric-transparent-1.png" alt="Fondo Misiones">
+                    <img src="logovideoteca.png" alt="Fondo Misiones">
                 </div>
                 
                 <div class="aging-overlay"></div>
@@ -355,15 +355,17 @@
 
         <!-- VISTA: RECOMPENSAS -->
         <div id="view-recompensa" class="view-section hidden">
-            <div class="album-container paper-page overflow-y-auto hide-scrollbar relative mb-8">
-                <div class="relative z-50 p-8 md:p-14 pb-24 misiones-container text-center">
+            <div class="album-container paper-page overflow-y-auto hide-scrollbar relative mb-24">
+                <div class="relative z-50 p-8 md:p-14 pb-48 misiones-container text-center">
                     <h2 class="text-4xl font-bold mb-8 text-center uppercase tracking-widest text-stone-900 text-center">Vitrina de Recompensas</h2>
                     <div id="badges-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12 items-center justify-items-center"></div>
                     
-                    <div class="mt-12 border-t border-stone-800/10 pt-8 flex flex-col items-center">
-                        <span id="global-historians-count" class="text-4xl font-bold text-stone-900 leading-none">...</span>
-                        <span class="text-stone-800/60 text-[9px] uppercase tracking-[0.3em] font-bold mt-2">videonautas han indagado en los Archivos de Alejandría</span>
+                    <div class="mt-16 border-t border-stone-800/10 pt-10 flex flex-col items-center">
+                        <span id="global-historians-count" class="text-4xl font-bold text-stone-900 leading-none font-serif">...</span>
+                        <span class="text-stone-800/70 text-sm uppercase tracking-[0.3em] font-bold mt-3 leading-relaxed max-w-md">videonautas han indagado en los Archivos de Alejandría</span>
                     </div>
+                    <!-- ESPACIADO ADICIONAL PARA EVITAR CORTE -->
+                    <div class="h-24 w-full"></div>
                 </div>
             </div>
         </div>
@@ -413,7 +415,7 @@
 
         // --- CONFIGURACIÓN FIREBASE ---
         let firebaseConfig = {
-            apiKey: "AIzaSyBv2acfXnTnU-ZLBfhWOqwN3o_NYn9EIpo",
+             apiKey: "AIzaSyBv2acfXnTnU-ZLBfhWOqwN3o_NYn9EIpo",
   authDomain: "album-archivos-alejandria.firebaseapp.com",
   projectId: "album-archivos-alejandria",
   storageBucket: "album-archivos-alejandria.firebasestorage.app",
@@ -593,7 +595,11 @@
             const currentData = state.currentPage === 1 ? _DATA_MAP.slice(0, 5) : _DATA_MAP.slice(5, 10);
             const pano = currentData.find(l => l.type === "panorama");
             const normals = currentData.filter(l => l.type !== "panorama");
-            bgContainer.innerHTML = state.currentPage === 1 ? `<img src="azteca.png" alt="Símbolo Azteca" style="width:200px; opacity:0.1">` : `<svg viewBox="0 0 100 100" fill="none" stroke="#5d4037" stroke-width="2" style="width:200px; opacity:0.1"><path d="M10 90 L30 90 L30 70 L40 70 L40 50 L50 50 L50 30 L60 30 L60 50 L70 50 L70 70 L80 70 L80 90 L90 90" /><path d="M40 90 L40 80 L60 80 L60 90" /><circle cx="50" cy="20" r="5" /></svg>`;
+            
+            // Actualización de fondos por página
+            const bgImage = state.currentPage === 1 ? 'azteca.png' : 'egipcio.png';
+            bgContainer.innerHTML = `<img src="${bgImage}" alt="Marca de Agua" style="width:200px; opacity:0.12; mix-blend-mode: multiply;">`;
+
             const layout = document.createElement('div');
             layout.className = `flex h-full w-full gap-8 md:gap-14 ${isOdd ? 'flex-row' : 'flex-row-reverse'} items-end justify-between`;
             const mainCol = document.createElement('div');
@@ -697,8 +703,8 @@
                     <h4 class="font-bold text-stone-900 uppercase text-[14px] tracking-widest leading-tight mb-2">${ins.nombre}</h4>
                     <p class="text-stone-700 italic leading-relaxed px-4 font-serif text-[11px]">${ins.desc}</p>
                     <div class="mt-2 flex flex-col items-center">
-                        <span class="text-3xl font-bold text-stone-900 leading-none">${globalCount}</span>
-                        <span class="text-[8px] font-bold text-stone-500 uppercase tracking-tighter mt-1 leading-tight opacity-70">Reclamadas<br>Globalmente</span>
+                        <span class="text-3xl font-bold text-stone-900 leading-none font-serif">${globalCount}</span>
+                        <span class="text-[9px] font-bold text-stone-500 uppercase tracking-tighter mt-1 leading-tight opacity-70">Reclamadas<br>Globalmente</span>
                     </div>
                 `;
                 if (complete && !claimed) {
