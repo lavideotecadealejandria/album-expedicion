@@ -64,12 +64,6 @@
             mix-blend-mode: multiply;
         }
 
-        .page-background-graphic img, .page-background-graphic svg {
-            width: 80%;
-            height: 80%;
-            object-fit: contain;
-        }
-
         .misiones-bg-fixed {
             position: absolute;
             top: 0;
@@ -249,8 +243,8 @@
         <div class="text-4xl mb-2">🎁</div>
         <h3 class="font-bold text-stone-900 uppercase text-sm tracking-widest mb-1">¡Recompensa Desbloqueada!</h3>
         <p class="text-xs italic text-stone-700 mb-4" id="notification-text">Has completado un hito histórico.</p>
-        <button onclick="goToRewards()" class="bg-amber-600 text-white px-4 py-2 rounded text-[10px] font-bold uppercase tracking-widest shadow-md hover:bg-amber-700 w-full transition-colors">Ver Recompensas</button>
-        <button onclick="hideNotification()" class="mt-2 text-[10px] text-stone-500 hover:text-stone-800 underline">Cerrar</button>
+        <button onclick="window.goToRewards()" class="bg-amber-600 text-white px-4 py-2 rounded text-[10px] font-bold uppercase tracking-widest shadow-md hover:bg-amber-700 w-full transition-colors">Ver Recompensas</button>
+        <button onclick="window.hideNotification()" class="mt-2 text-[10px] text-stone-500 hover:text-stone-800 underline">Cerrar</button>
     </div>
 
     <nav id="main-nav" class="max-w-5xl mx-auto mb-2 flex items-center justify-between w-full pb-2 overflow-x-auto hide-scrollbar invisible pointer-events-none transition-opacity duration-300">
@@ -268,14 +262,15 @@
             </div>
         </div>
         <div class="space-x-4 md:space-x-6 text-base md:text-lg flex items-center shrink-0 whitespace-nowrap text-stone-300">
-            <a href="#" onclick="showView('portada')" id="nav-portada" class="hover:text-white transition-all">Portada</a>
-            <a href="#" onclick="showView('album')" id="nav-album" class="hover:text-white transition-all">Mi Álbum</a>
-            <a href="#" onclick="showView('misiones')" id="nav-misiones" class="hover:text-white transition-all">Misiones</a>
-            <a href="#" onclick="showView('recompensa')" id="nav-recompensa" class="hover:text-white transition-all">Recompensas</a>
+            <a href="#" onclick="window.showView('portada')" id="nav-portada" class="hover:text-white transition-all">Portada</a>
+            <a href="#" onclick="window.showView('album')" id="nav-album" class="hover:text-white transition-all">Mi Álbum</a>
+            <a href="#" onclick="window.showView('misiones')" id="nav-misiones" class="hover:text-white transition-all">Misiones</a>
+            <a href="#" onclick="window.showView('recompensa')" id="nav-recompensa" class="hover:text-white transition-all">Recompensas</a>
         </div>
     </nav>
 
     <main class="w-full max-w-5xl">
+        <!-- VISTA: PORTADA -->
         <div id="view-portada" class="view-section block">
             <div class="album-container leather-cover p-8 md:p-14 flex flex-col justify-between items-center text-center">
                 <div class="aging-overlay"></div>
@@ -286,7 +281,7 @@
                         <span class="block text-2xl md:text-3xl lowercase font-serif italic my-2">de</span>
                         <span class="block">Alejandría</span>
                     </h2>
-                    <button onclick="showView('album')" class="relative z-10 px-12 py-4 bg-[#c5a059] text-[#1a0f0a] font-bold uppercase tracking-widest text-lg rounded-sm shadow-[0_6px_0_#8c6d33] hover:bg-[#d4af37] active:translate-y-1 active:shadow-none transition-all font-sans border border-[#f1d388]/30">
+                    <button onclick="window.showView('album')" class="relative z-10 px-12 py-4 bg-[#c5a059] text-[#1a0f0a] font-bold uppercase tracking-widest text-lg rounded-sm shadow-[0_6px_0_#8c6d33] hover:bg-[#d4af37] active:translate-y-1 active:shadow-none transition-all font-sans border border-[#f1d388]/30">
                         Abrir Álbum
                     </button>
                 </div>
@@ -294,17 +289,17 @@
             </div>
         </div>
 
+        <!-- VISTA: MI ÁLBUM -->
         <div id="view-album" class="view-section hidden">
             <div id="album-content-wrapper" class="album-container paper-page overflow-hidden">
                 <div class="aging-overlay"></div>
                 <div id="page-bg-graphic" class="page-background-graphic"></div>
-                
-                <div id="album-page-header" class="absolute top-10 z-30 transition-all duration-500"></div>
-                <div id="album-page-body" class="relative z-20 w-full h-full p-8 md:p-14 flex flex-col justify-end"></div>
+                <div id="album-page-body" class="relative z-20 w-full h-full p-8 md:p-14 flex flex-col justify-center"></div>
             </div>
             <div id="pagination-controls" class="flex justify-center space-x-2 md:space-x-4 pb-8"></div>
         </div>
 
+        <!-- VISTA: MISIONES (DISEÑO PREMIUM RESTAURADO) -->
         <div id="view-misiones" class="view-section hidden">
             <div class="album-container paper-page relative overflow-hidden">
                 <div class="misiones-bg-fixed">
@@ -332,6 +327,7 @@
             </div>
         </div>
 
+        <!-- VISTA: RECOMPENSAS (DISEÑO PREMIUM RESTAURADO) -->
         <div id="view-recompensa" class="view-section hidden">
             <div class="album-container paper-page overflow-y-auto hide-scrollbar relative">
                 <div class="relative z-50 p-8 md:p-14 misiones-container text-center">
@@ -339,16 +335,17 @@
                     <div id="badges-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12 items-center justify-items-center"></div>
                     
                     <div class="mt-12 text-stone-800/60 text-[10px] uppercase tracking-widest font-bold border-t border-stone-800/10 pt-8">
-                        <span id="global-historians-count">...</span> videonautas han indagado en los Archivos de Alejandría
+                        <span id="global-historians-count">...</span> historiadores han visitado la biblioteca
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
+    <!-- VISOR -->
     <div id="viewer-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md hidden flex items-center justify-center z-[100] p-4">
         <div class="flex flex-col items-center gap-6 max-w-4xl w-full">
-            <button onclick="closeViewer()" class="absolute top-6 right-6 text-white/50 hover:text-white text-5xl font-light transition-all">&times;</button>
+            <button onclick="window.closeViewer()" class="absolute top-6 right-6 text-white/50 hover:text-white text-5xl font-light transition-all">&times;</button>
             <div class="perspective-[1500px] w-full max-w-[400px] aspect-[2/3]" id="viewer-card-container">
                 <div class="card-inner relative" id="card-element">
                     <div class="card-front zoom-container rounded shadow-2xl bg-stone-900">
@@ -362,21 +359,21 @@
                 </div>
             </div>
             <div class="flex flex-wrap items-center justify-center gap-6 bg-stone-900/50 p-4 rounded-full border border-white/10 backdrop-blur-md">
-                <button onclick="flipCard()" class="px-8 py-2 bg-[#d4af37] text-stone-950 font-bold rounded-full uppercase text-xs tracking-widest hover:bg-[#fde68a] transition-all">Girar Lámina</button>
+                <button onclick="window.flipCard()" class="px-8 py-2 bg-[#d4af37] text-stone-950 font-bold rounded-full uppercase text-xs tracking-widest hover:bg-[#fde68a] transition-all">Girar Lámina</button>
                 <div class="flex items-center gap-4 px-6 border-x border-white/10">
                     <span class="text-white text-[10px] uppercase font-bold tracking-widest">Zoom</span>
                     <input type="range" min="1" max="3" step="0.1" value="1" id="zoom-slider" class="w-32 accent-[#d4af37]">
                 </div>
-                <button onclick="closeViewer()" class="px-8 py-2 bg-stone-800 text-white font-bold rounded-full uppercase text-xs tracking-widest">Cerrar</button>
+                <button onclick="window.closeViewer()" class="px-8 py-2 bg-stone-800 text-white font-bold rounded-full uppercase text-xs tracking-widest">Cerrar</button>
             </div>
         </div>
     </div>
 
+    <!-- MODAL DE CÓDIGO -->
     <div id="code-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center z-[80] p-4">
         <div class="bg-[#f4e4bc] border-4 border-stone-800 p-8 max-w-sm w-full mx-4 rounded-sm shadow-2xl text-center relative" style="background-image: url('https://www.transparenttextures.com/patterns/aged-paper.png');">
             <button onclick="document.getElementById('code-modal').classList.add('hidden')" class="absolute top-2 right-4 text-3xl text-stone-600 hover:text-stone-900 font-bold">&times;</button>
             <h2 class="text-2xl font-bold mb-2 text-stone-900 uppercase tracking-tighter">CÓDIGO SECRETO</h2>
-            <p class="text-[10px] text-stone-600 uppercase tracking-widest mb-2 italic">Ingresa tus hallazgos aquí:</p>
             <input type="text" id="secret-code-input" placeholder="PALABRAS CLAVE" class="w-full bg-stone-100 border-2 border-stone-400 p-3 text-center text-xl font-bold uppercase my-4 font-sans shadow-inner focus:outline-none focus:ring-2 focus:ring-amber-600 transition-all">
             <button id="verify-code-btn" class="px-6 py-3 bg-stone-800 text-white font-bold rounded hover:bg-stone-700 shadow-lg w-full uppercase transition-all tracking-widest">OBTENER LÁMINA</button>
         </div>
@@ -384,22 +381,15 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, updateDoc, increment, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const firebaseConfig = {
-           apiKey: "AIzaSyBv2acfXnTnU-ZLBfhWOqwN3o_NYn9EIpo",
-           authDomain: "album-archivos-alejandria.firebaseapp.com",
-           projectId: "album-archivos-alejandria",
-           storageBucket: "album-archivos-alejandria.firebasestorage.app",
-           messagingSenderId: "885290528156",
-           appId: "1:885290528156:web:9afbd750956618afbeac59"
-        };
-
+        // Firebase Setup using environment variables
+        const firebaseConfig = JSON.parse(__firebase_config);
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = 'mi-album-azteca-2026';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         // ESTRUCTURA DE DATOS
         const _DATA_MAP = [
@@ -504,7 +494,8 @@
         }
 
         function setupGlobalListeners() {
-            const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats');
+            // FIX: Added 'global' segment to document path to ensure even number of segments (6 total)
+            const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'global');
             onSnapshot(statsRef, (snap) => {
                 if (snap.exists()) {
                     const data = snap.data();
@@ -543,45 +534,63 @@
 
         function renderAlbum() {
             const body = document.getElementById('album-page-body');
-            const header = document.getElementById('album-page-header');
             const bgContainer = document.getElementById('page-bg-graphic');
-            if (!body || !header || !bgContainer) return;
+            if (!body || !bgContainer) return;
             body.innerHTML = '';
+            
             const isOdd = state.currentPage % 2 !== 0;
-
-            // Restauración de posicionamiento y márgenes de los títulos
-            header.className = `absolute top-10 ${isOdd ? 'left-10 md:left-14' : 'right-10 md:right-16'} z-30 transition-all duration-500`;
-            
-            header.innerHTML = `<h3 class="text-4xl md:text-6xl font-bold uppercase tracking-tighter leading-[0.85] ${isOdd ? 'text-left' : 'text-right'} text-stone-900">${state.currentPage === 1 ? 'EL IMPERIO<br>DEL SOL' : 'LEGADO<br>DEL JAGUAR'}</h3>`;
-            
-            bgContainer.innerHTML = state.currentPage === 1 ? `<img src="azteca.png" alt="Símbolo Azteca">` : `<svg viewBox="0 0 100 100" fill="none" stroke="#5d4037" stroke-width="2"><path d="M10 90 L30 90 L30 70 L40 70 L40 50 L50 50 L50 30 L60 30 L60 50 L70 50 L70 70 L80 70 L80 90 L90 90" /><path d="M40 90 L40 80 L60 80 L60 90" /><circle cx="50" cy="20" r="5" /></svg>`;
-            
-            const container = document.createElement('div');
-            container.className = "flex items-end justify-between w-full gap-12 pb-4 relative z-10";
             const currentData = state.currentPage === 1 ? _DATA_MAP.slice(0, 5) : _DATA_MAP.slice(5, 10);
             const pano = currentData.find(l => l.type === "panorama");
             const normals = currentData.filter(l => l.type !== "panorama");
 
-            const panoCard = createStickerElement(pano, true);
-            const grid = document.createElement('div'); grid.className = "grid grid-cols-2 gap-6 w-full";
-            normals.forEach(l => grid.appendChild(createStickerElement(l)));
+            bgContainer.innerHTML = state.currentPage === 1 ? `<img src="azteca.png" alt="Símbolo Azteca">` : `<svg viewBox="0 0 100 100" fill="none" stroke="#5d4037" stroke-width="2"><path d="M10 90 L30 90 L30 70 L40 70 L40 50 L50 50 L50 30 L60 30 L60 50 L70 50 L70 70 L80 70 L80 90 L90 90" /><path d="M40 90 L40 80 L60 80 L60 90" /><circle cx="50" cy="20" r="5" /></svg>`;
+            
+            const layout = document.createElement('div');
+            layout.className = `flex h-full w-full gap-8 md:gap-14 ${isOdd ? 'flex-row' : 'flex-row-reverse'} items-end justify-between`;
 
-            if (isOdd) { container.append(panoCard, grid); } else { container.append(grid, panoCard); }
-            body.appendChild(container); renderPagination();
+            const mainCol = document.createElement('div');
+            mainCol.className = "flex flex-col justify-between w-full h-full pb-2";
+
+            const titleBox = document.createElement('div');
+            titleBox.className = "pt-4 md:pt-8";
+            titleBox.innerHTML = `<h3 class="text-4xl md:text-6xl font-bold uppercase tracking-tighter leading-[0.85] ${isOdd ? 'text-left' : 'text-right'} text-stone-900 drop-shadow-sm">
+                ${state.currentPage === 1 ? 'EL IMPERIO<br>DEL SOL' : 'LEGADO<br>DEL JAGUAR'}
+            </h3>`;
+
+            const panoContainer = document.createElement('div');
+            panoContainer.className = "w-full";
+            panoContainer.appendChild(createStickerElement(pano, true));
+
+            mainCol.append(titleBox, panoContainer);
+
+            const gridCol = document.createElement('div');
+            gridCol.className = "grid grid-cols-2 gap-4 md:gap-6 shrink-0 w-[44%] md:w-[42%] mb-2";
+            normals.forEach(l => gridCol.appendChild(createStickerElement(l)));
+
+            layout.append(mainCol, gridCol);
+            body.appendChild(layout);
+            renderPagination();
         }
 
         function createStickerElement(lamina, isPanorama = false) {
             const card = document.createElement('div');
             const owned = state.laminasOwned[lamina.id];
-            card.className = `sticker-slot cursor-pointer ${isPanorama ? 'aspect-[2/1] w-full' : 'aspect-[2/3] w-full'} flex items-center justify-center relative overflow-hidden shadow-inner rounded-sm border border-black/10 bg-black/5`;
-            card.style.height = "230px";
+            
+            card.className = `sticker-slot cursor-pointer ${isPanorama ? 'aspect-[2/1] w-full shadow-lg' : 'aspect-[2/3] w-full shadow-md'} flex items-center justify-center relative overflow-hidden rounded-sm border border-black/10 bg-black/5`;
+            
             if (owned) {
                 card.classList.add('sticker-active');
                 card.innerHTML = `<img src="${lamina.img}" class="w-full h-full object-cover">`;
-                if (!isPanorama) card.onclick = () => openViewer(lamina);
+                if (!isPanorama) card.onclick = () => window.openViewer(lamina);
             } else {
                 card.innerHTML = `<span class="text-3xl font-bold text-stone-900/40 font-serif">${lamina.id}</span>`;
-                card.onclick = (e) => { e.stopPropagation(); _currentID = lamina.id; document.getElementById('secret-code-input').value = ''; document.getElementById('code-modal').classList.remove('hidden'); document.getElementById('secret-code-input').focus(); };
+                card.onclick = (e) => { 
+                    e.stopPropagation(); 
+                    _currentID = lamina.id; 
+                    document.getElementById('secret-code-input').value = ''; 
+                    document.getElementById('code-modal').classList.remove('hidden'); 
+                    document.getElementById('secret-code-input').focus(); 
+                };
             }
             return card;
         }
@@ -633,7 +642,7 @@
                 const globalCount = badgesGlobal[ins.id] || 0;
                 const card = document.createElement('div');
                 card.className = `p-8 rounded-full text-center border-2 transition-all flex flex-col items-center justify-center aspect-square w-full max-w-[280px] mx-auto relative ${claimed ? 'border-amber-200/40 bg-[#fffef0]' : complete ? 'border-amber-400 bg-white animate-pulse' : 'border-dashed border-stone-300 opacity-40 grayscale'}`;
-                card.innerHTML = `<div class="mb-2 h-24 flex items-center justify-center">${ins.icon}</div><h4 class="font-bold text-stone-900 uppercase text-[14px] tracking-widest leading-tight mb-2">${ins.nombre}</h4><p class="text-stone-700 italic leading-relaxed px-4 font-serif text-[11px]">${ins.desc}</p><div class="mt-2 text-[9px] font-bold text-stone-500 uppercase opacity-70">${globalCount} Reclamadas Globalmente</div>${complete && !claimed ? `<button onclick="claimBadge(${ins.id})" class="mt-4 bg-amber-600 text-white px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg hover:bg-amber-700">RECLAMAR</button>` : !complete ? `<p class="text-stone-500 text-[10px] mt-3 italic">Misión pendiente</p>` : ''}`;
+                card.innerHTML = `<div class="mb-2 h-24 flex items-center justify-center">${ins.icon}</div><h4 class="font-bold text-stone-900 uppercase text-[14px] tracking-widest leading-tight mb-2">${ins.nombre}</h4><p class="text-stone-700 italic leading-relaxed px-4 font-serif text-[11px]">${ins.desc}</p><div class="mt-2 text-[9px] font-bold text-stone-500 uppercase opacity-70">${globalCount} Reclamadas Globalmente</div>${complete && !claimed ? `<button onclick="window.claimBadge(${ins.id})" class="mt-4 bg-amber-600 text-white px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg hover:bg-amber-700">RECLAMAR</button>` : !complete ? `<p class="text-stone-500 text-[10px] mt-3 italic">Misión pendiente</p>` : ''}`;
                 grid.appendChild(card);
             });
         }
@@ -641,11 +650,14 @@
         window.claimBadge = async (id) => {
             state.badgesClaimed.push(id); launchCelebration();
             localStorage.setItem('alexandria_final', JSON.stringify(state)); _updateUI();
-            try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'stats'), { [`badgesGlobal.${id}`]: increment(1) }); } catch (e) {}
+            try { 
+                // FIX: Added 'global' segment to document path
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'global'), { [`badgesGlobal.${id}`]: increment(1) }); 
+            } catch (e) {}
             syncWithCloud(); renderRecompensas();
         };
 
-        window.goToRewards = () => { document.getElementById('reward-notification').classList.remove('show'); showView('recompensa'); };
+        window.goToRewards = () => { document.getElementById('reward-notification').classList.remove('show'); window.showView('recompensa'); };
         window.hideNotification = () => document.getElementById('reward-notification').classList.remove('show');
 
         const processCode = () => {
@@ -669,19 +681,27 @@
         document.getElementById('secret-code-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') processCode(); });
 
         window.onload = async () => {
-            showView('portada'); _updateUI();
+            window.showView('portada'); _updateUI();
             try {
-                const u = await signInAnonymously(auth).then(r => r.user);
-                user = u;
-                if (user) {
-                    const snap = await getDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'data', 'progress'));
-                    if (snap.exists() && Object.keys(snap.data().laminasOwned || {}).length > Object.keys(state.laminasOwned).length) {
-                        state = { ...state, ...snap.data() }; localStorage.setItem('alexandria_final', JSON.stringify(state));
-                    } else if (!snap.exists()) {
-                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'stats'), { totalUsers: increment(1) });
-                    }
-                    setupGlobalListeners(); _updateUI();
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
                 }
+                onAuthStateChanged(auth, async (u) => {
+                    user = u;
+                    if (user) {
+                        const snap = await getDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'data', 'progress'));
+                        if (snap.exists() && Object.keys(snap.data().laminasOwned || {}).length > Object.keys(state.laminasOwned).length) {
+                            state = { ...state, ...snap.data() }; localStorage.setItem('alexandria_final', JSON.stringify(state));
+                        } else if (!snap.exists()) {
+                            // FIX: Added 'global' segment to document path
+                            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'global'), { totalUsers: increment(1) }, {merge: true});
+                        }
+                        setupGlobalListeners(); _updateUI();
+                        document.getElementById('sync-indicator').innerText = "Archivos Sincronizados";
+                    }
+                });
             } catch (e) { document.getElementById('sync-indicator').innerText = "Modo Offline"; }
             document.getElementById('zoom-slider').addEventListener('input', (e) => document.getElementById('viewer-image').style.width = (parseFloat(e.target.value) * 100) + '%');
         };
