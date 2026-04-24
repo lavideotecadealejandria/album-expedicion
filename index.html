@@ -235,7 +235,7 @@
 </head>
 <body class="vintage-paper min-h-screen pt-2 pb-4 px-4 md:pt-4 md:pb-8 md:px-8 flex flex-col items-center">
 
-    <div id="sync-indicator" class="sync-status">Sincronizando con los Archivos...</div>
+    <div id="sync-indicator" class="sync-status">Cargando...</div>
 
     <canvas id="celebration-canvas" class="fixed inset-0 pointer-events-none z-[200]"></canvas>
 
@@ -299,7 +299,7 @@
             <div id="pagination-controls" class="flex justify-center space-x-2 md:space-x-4 pb-8"></div>
         </div>
 
-        <!-- VISTA: MISIONES (DISEÑO PREMIUM RESTAURADO) -->
+        <!-- VISTA: MISIONES -->
         <div id="view-misiones" class="view-section hidden">
             <div class="album-container paper-page relative overflow-hidden">
                 <div class="misiones-bg-fixed">
@@ -327,7 +327,7 @@
             </div>
         </div>
 
-        <!-- VISTA: RECOMPENSAS (DISEÑO PREMIUM RESTAURADO) -->
+        <!-- VISTA: RECOMPENSAS -->
         <div id="view-recompensa" class="view-section hidden">
             <div class="album-container paper-page overflow-y-auto hide-scrollbar relative">
                 <div class="relative z-50 p-8 md:p-14 misiones-container text-center">
@@ -384,12 +384,24 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, updateDoc, increment, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase Setup using environment variables
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        // CONFIGURACIÓN DE SEGURIDAD PARA GITHUB
+        // Si las variables __ no existen, evitamos que el script explote.
+        let firebaseConfig = {};
+        try {
+            firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        } catch(e) { console.warn("Configuración de Firebase no encontrada."); }
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'mi-album-alejandria';
+        
+        let app, auth, db;
+        let isFirebaseActive = false;
+
+        if (firebaseConfig.apiKey) {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            isFirebaseActive = true;
+        }
 
         // ESTRUCTURA DE DATOS
         const _DATA_MAP = [
@@ -477,7 +489,7 @@
 
         // --- NUBE ---
         async function syncWithCloud() {
-            if (!user) return;
+            if (!isFirebaseActive || !user) return;
             const syncInd = document.getElementById('sync-indicator');
             syncInd.innerText = "Sincronizando...";
             try {
@@ -487,14 +499,15 @@
                     badgesClaimed: state.badgesClaimed,
                     lastUpdated: new Date()
                 }, { merge: true });
-                syncInd.innerText = "Archivos Sincronizados";
+                syncInd.innerText = "Sincronizado";
             } catch (err) {
-                syncInd.innerText = "Modo Offline";
+                console.error(err);
+                syncInd.innerText = "Modo Local";
             }
         }
 
         function setupGlobalListeners() {
-            // FIX: Added 'global' segment to document path to ensure even number of segments (6 total)
+            if (!isFirebaseActive) return;
             const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'global');
             onSnapshot(statsRef, (snap) => {
                 if (snap.exists()) {
@@ -525,8 +538,11 @@
             const section = document.getElementById('view-' + viewId);
             if (section) section.classList.remove('hidden');
             const nav = document.getElementById('main-nav');
-            if (viewId === 'portada') nav.classList.add('invisible', 'pointer-events-none');
-            else nav.classList.remove('invisible', 'pointer-events-none');
+            if (viewId === 'portada') {
+                if (nav) nav.classList.add('invisible', 'pointer-events-none');
+            } else {
+                if (nav) nav.classList.remove('invisible', 'pointer-events-none');
+            }
             if (viewId === 'album') renderAlbum();
             if (viewId === 'misiones') renderMisiones();
             if (viewId === 'recompensa') renderRecompensas();
@@ -543,7 +559,7 @@
             const pano = currentData.find(l => l.type === "panorama");
             const normals = currentData.filter(l => l.type !== "panorama");
 
-            bgContainer.innerHTML = state.currentPage === 1 ? `<img src="azteca.png" alt="Símbolo Azteca">` : `<svg viewBox="0 0 100 100" fill="none" stroke="#5d4037" stroke-width="2"><path d="M10 90 L30 90 L30 70 L40 70 L40 50 L50 50 L50 30 L60 30 L60 50 L70 50 L70 70 L80 70 L80 90 L90 90" /><path d="M40 90 L40 80 L60 80 L60 90" /><circle cx="50" cy="20" r="5" /></svg>`;
+            bgContainer.innerHTML = state.currentPage === 1 ? `<img src="azteca.png" alt="Símbolo Azteca" style="width:200px; opacity:0.1">` : `<svg viewBox="0 0 100 100" fill="none" stroke="#5d4037" stroke-width="2" style="width:200px; opacity:0.1"><path d="M10 90 L30 90 L30 70 L40 70 L40 50 L50 50 L50 30 L60 30 L60 50 L70 50 L70 70 L80 70 L80 90 L90 90" /><path d="M40 90 L40 80 L60 80 L60 90" /><circle cx="50" cy="20" r="5" /></svg>`;
             
             const layout = document.createElement('div');
             layout.className = `flex h-full w-full gap-8 md:gap-14 ${isOdd ? 'flex-row' : 'flex-row-reverse'} items-end justify-between`;
@@ -608,7 +624,9 @@
         window.flipCard = () => document.getElementById('card-element').classList.toggle('card-flipped');
 
         function renderPagination() {
-            const container = document.getElementById('pagination-controls'); container.innerHTML = '';
+            const container = document.getElementById('pagination-controls'); 
+            if (!container) return;
+            container.innerHTML = '';
             [1, 2].forEach(i => {
                 const btn = document.createElement('button'); btn.innerText = `Pág. ${i}`;
                 btn.className = `px-6 py-2 font-bold rounded-full transition-all border-b-4 ${i === state.currentPage ? 'bg-[#d4af37] text-stone-950 border-[#b38b00]' : 'bg-stone-800 text-stone-400 border-stone-900'}`;
@@ -618,7 +636,9 @@
         }
 
         function renderMisiones() {
-            const list = document.getElementById('misiones-list'); list.innerHTML = '';
+            const list = document.getElementById('misiones-list'); 
+            if (!list) return;
+            list.innerHTML = '';
             const t = ["EL IMPERIO DEL SOL", "LEGADO DEL JAGUAR"];
             [_DATA_MAP.slice(0, 5), _DATA_MAP.slice(5, 10)].forEach((g, i) => {
                 const h = document.createElement('div'); h.className = "col-span-full mt-6 mb-4 pb-1 border-b-2 border-stone-800/20";
@@ -650,15 +670,22 @@
         window.claimBadge = async (id) => {
             state.badgesClaimed.push(id); launchCelebration();
             localStorage.setItem('alexandria_final', JSON.stringify(state)); _updateUI();
-            try { 
-                // FIX: Added 'global' segment to document path
-                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'global'), { [`badgesGlobal.${id}`]: increment(1) }); 
-            } catch (e) {}
-            syncWithCloud(); renderRecompensas();
+            if (isFirebaseActive) {
+                try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'global'), { [`badgesGlobal.${id}`]: increment(1) }); } catch (e) {}
+                syncWithCloud();
+            }
+            renderRecompensas();
         };
 
-        window.goToRewards = () => { document.getElementById('reward-notification').classList.remove('show'); window.showView('recompensa'); };
-        window.hideNotification = () => document.getElementById('reward-notification').classList.remove('show');
+        window.goToRewards = () => { 
+            const toast = document.getElementById('reward-notification');
+            if (toast) toast.classList.remove('show'); 
+            window.showView('recompensa'); 
+        };
+        window.hideNotification = () => {
+            const toast = document.getElementById('reward-notification');
+            if (toast) toast.classList.remove('show');
+        };
 
         const processCode = () => {
             const l = _DATA_MAP.find(x => x.id === _currentID);
@@ -668,43 +695,53 @@
                 document.getElementById('code-modal').classList.add('hidden'); renderAlbum();
                 if (Object.keys(state.laminasOwned).length % 5 === 0) {
                     launchCelebration(); document.getElementById('reward-notification').classList.add('show');
-                    setTimeout(() => document.getElementById('reward-notification').classList.remove('show'), 6000);
+                    setTimeout(() => window.hideNotification(), 6000);
                 }
                 syncWithCloud();
             } else {
-                document.getElementById('secret-code-input').classList.add('animate-shake', 'border-red-500');
-                setTimeout(() => document.getElementById('secret-code-input').classList.remove('animate-shake', 'border-red-500'), 500);
+                const input = document.getElementById('secret-code-input');
+                input.classList.add('animate-shake', 'border-red-500');
+                setTimeout(() => input.classList.remove('animate-shake', 'border-red-500'), 500);
             }
         };
 
         document.getElementById('verify-code-btn').onclick = processCode;
         document.getElementById('secret-code-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') processCode(); });
 
-        window.onload = async () => {
+        // INICIALIZACIÓN PRINCIPAL
+        const mainStart = async () => {
             window.showView('portada'); _updateUI();
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                onAuthStateChanged(auth, async (u) => {
-                    user = u;
-                    if (user) {
-                        const snap = await getDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'data', 'progress'));
-                        if (snap.exists() && Object.keys(snap.data().laminasOwned || {}).length > Object.keys(state.laminasOwned).length) {
-                            state = { ...state, ...snap.data() }; localStorage.setItem('alexandria_final', JSON.stringify(state));
-                        } else if (!snap.exists()) {
-                            // FIX: Added 'global' segment to document path
-                            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'global'), { totalUsers: increment(1) }, {merge: true});
-                        }
-                        setupGlobalListeners(); _updateUI();
-                        document.getElementById('sync-indicator').innerText = "Archivos Sincronizados";
+            
+            if (isFirebaseActive) {
+                try {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
                     }
-                });
-            } catch (e) { document.getElementById('sync-indicator').innerText = "Modo Offline"; }
+                    onAuthStateChanged(auth, async (u) => {
+                        user = u;
+                        if (user) {
+                            const snap = await getDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'data', 'progress'));
+                            if (snap.exists()) {
+                                state = { ...state, ...snap.data() }; 
+                                localStorage.setItem('alexandria_final', JSON.stringify(state));
+                            } else {
+                                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'global'), { totalUsers: increment(1) }, {merge: true});
+                            }
+                            setupGlobalListeners(); _updateUI();
+                            document.getElementById('sync-indicator').innerText = "Sincronizado";
+                        }
+                    });
+                } catch (e) { document.getElementById('sync-indicator').innerText = "Modo Local"; }
+            } else {
+                document.getElementById('sync-indicator').innerText = "Modo Local";
+            }
+            
             document.getElementById('zoom-slider').addEventListener('input', (e) => document.getElementById('viewer-image').style.width = (parseFloat(e.target.value) * 100) + '%');
         };
+
+        window.onload = mainStart;
     </script>
 </body>
 </html>
